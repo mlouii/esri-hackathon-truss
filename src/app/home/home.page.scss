@@ -25,3 +25,64 @@
 #container a {
   text-decoration: none;
 }
+
+p {
+  font-family: Biryani, sans-serif;
+  margin-bottom: 0;
+}
+
+.smallText {
+  font-size: 10px;
+  color: gray;
+}
+
+h1 {
+  font-family: Biryani, sans-serif;
+}
+
+ion-toggle {
+  margin-bottom: 4px;
+}
+
+ion-content {
+  font-family: Biryani, sans-serif;
+}
+
+#ion-label {
+  font-family: Biryani, sans-serif;
+}
+
+.expandable {
+  transition: all .5s ease-in-out;
+}
+
+//.expandable:target {
+//  transform: scaleY(1);
+//}
+
+.pointer {cursor: pointer;}
+
+ion-avatar {
+  border-radius: 4px;
+}
+
+.bodyArea {
+  width: 80vw;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: Biryani, sans-serif;
+}
+
+.titleBar {
+  background: var(--ion-color-secondary);
+  width: 100vw;
+
+  .logoTitleImage {
+    padding-top: 2.4vh;
+    padding-bottom: 2.4vh;
+    margin-left: auto;
+    margin-right: auto;
+    height: 30vh;
+    width: 60vh;
+  }
+}

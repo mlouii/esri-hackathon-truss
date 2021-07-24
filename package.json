@@ -21,6 +21,9 @@
     "@angular/platform-browser-dynamic": "~12.1.1",
     "@angular/router": "~12.1.1",
     "@ionic/angular": "^5.5.2",
+    "@types/arcgis-js-api": "^4.20.1",
+    "arcgis-js-api": "^4.20.2",
+    "esri-loader": "^2.16.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"
