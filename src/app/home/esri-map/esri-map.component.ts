@@ -1,0 +1,56 @@
+/*
+  Copyright 2019 Esri
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { loadModules } from 'esri-loader';
+
+@Component({
+  selector: 'app-esri-map',
+  templateUrl: './esri-map.component.html',
+  styleUrls: ['./esri-map.component.css']
+})
+export class EsriMapComponent implements OnInit {
+
+  @ViewChild('mapViewNode', { static: true }) private viewNode: ElementRef; // needed to inject the MapView into the DOM
+  mapView: any;
+  panRequestSubscription: any;
+
+  constructor() {}
+
+
+
+  public ngOnInit() {
+    // use esri-loader to load JSAPI modules
+    return loadModules([
+      'esri/Map',
+      'esri/views/SceneView',
+      'esri/Graphic'
+    ])
+      .then(([Map, MapView, Graphic]) => {
+        const map: any = new Map({
+          basemap: 'hybrid',
+          ground: "world-elevation"
+        });
+
+        this.mapView = new MapView({
+          container: this.viewNode.nativeElement,
+          center: [-12.287, -37.114],
+          zoom: 12,
+          map: map
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+}
