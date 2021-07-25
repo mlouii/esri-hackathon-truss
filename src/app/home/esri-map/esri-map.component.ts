@@ -13,6 +13,8 @@
 
 import {Component, OnInit, ViewChild, ElementRef, Input} from '@angular/core';
 import { loadModules } from 'esri-loader';
+import {NgForm} from '@angular/forms';
+import {ToastController} from "@ionic/angular";
 // import {FeatureLayer} from 'esri/layers/FeatureLayer';
 
 @Component({
@@ -29,26 +31,44 @@ export class EsriMapComponent implements OnInit {
   @Input() considerDistanceCommunityCenters: boolean;
   @Input() considerHeavyMetals: boolean;
   @Input() considerSunlight: boolean;
+  @Input() considerLowIncome: boolean;
 
+  @Input() parcelDimensions: any;
+  @Input() myForm: NgForm;
+
+  queryData: any;
 
   @ViewChild('mapViewNode', { static: true }) private viewNode: ElementRef; // needed to inject the MapView into the DOM
   mapView: __esri.MapView;
+  graphicsLayer: any;
   panRequestSubscription: any;
 
-  constructor() {}
+  formChanged = false;
+  isQueryData = false;
 
+  pointGraphic: any;
 
+  constructor(public toastController: ToastController) {}
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Map Query results have been updated',
+      duration: 800,
+      color:'secondary'
+    });
+    toast.present();
+  }
 
 createPopupTemplate() {
     return {
-      title: 'description',
+      title: 'Parcel Attributes',
       content: [
         {
           type: 'fields',
           fieldInfos: [
             {
-              fieldName: 'TaxRateCity',
-              label: 'City',
+              fieldName: 'AIN',
+              label: 'AIN',
               format: {
                 places: 0,
                 digitSeparator: true
@@ -190,11 +210,93 @@ createPopupTemplate() {
   }
 
 
+  updateMap(layer, layerView)
+  {
+
+    //base query attributes
+    const query = layer.createQuery();
+    query.geometry = this.mapView.center; //set origin point from center of map
+
+    const point = { //Create a point
+      type: 'point',
+      longitude: query.geometry.longitude,
+      latitude: query.geometry.latitude
+    };
+
+    this.pointGraphic.geometry = point;
+
+    query.units = 'miles';
+    query.spatialRelationship = 'intersects';  // this is the default
+    query.returnGeometry = true;
+    //query.outFields = [ "PARK" ];
+
+    //variable query attributes
+    query.distance = this.searchRadius;
+    query.where = `ShapeSTAre >= '${this.parcelDimensions.lower}'`;
+    query.where += ` AND ShapeSTAre <= '${this.parcelDimensions.upper}'`;
+
+    if (this.considerFoodDeserts)
+    {
+      query.where += ` AND (latracts_h = 1 OR latracts1 = 1)`;
+    }
+
+    if (this.considerPublicTransport)
+    {
+      query.where += ` AND MetroDist < 2.00`;
+    }
+    if (this.considerDistanceCommunityCenters)
+    {
+      query.where += ` AND schmdist < 2.00`;
+    }
+    if (this.considerHeavyMetals)
+    {
+      query.where += ` AND DrnkWatCI < 700.00`;
+    }
+    if (this.considerLowIncome)
+    {
+      query.where += ` AND LowIncomeT = 1`;
+    }
+    console.log(query.where);
+
+    //perform query
+    layerView.queryFeatures(query)
+      .then((response) => {
+        try {
+        console.log(response);
+        if (response.features) {
+          this.presentToast();
+          this.queryData = response.features;
+        } else {
+          this.queryData = [];
+        }
+      } catch (err) {
+          console.log(err);
+        }
+      });
+  }
+
+
+  panMap(coordinates, area){
+
+    const zoom = (20-Math.sqrt(Math.sqrt(area)));
+
+    console.log(zoom);
+    console.log(area);
+
+    this.mapView.goTo(coordinates)
+      .then(() => {
+        this.mapView.zoom = 13;
+      });
+  }
+
+
   public async ngOnInit() {
     console.log('running ngoninit');
+
+    this.queryData = [];
     // use esri-loader to load JSAPI modules
     try {
-      const [Map, MapView, FeatureLayer, WebStyleSymbol, Basemap, Search, Locator] = await loadModules([
+      const [Map, MapView, FeatureLayer, WebStyleSymbol, Basemap, Search, Locator, Graphic, GraphicsLayer] = await loadModules([
         'esri/Map',
         'esri/views/MapView',
         'esri/layers/FeatureLayer',
@@ -202,6 +304,8 @@ createPopupTemplate() {
         'esri/Basemap',
         'esri/widgets/Search',
         'esri/tasks/Locator',
+        'esri/Graphic',
+        'esri/layers/GraphicsLayer',
       ]);
       console.log('got here');
       const basemap = new Basemap({
@@ -213,7 +317,7 @@ createPopupTemplate() {
       // national parks layer
       const layer = new FeatureLayer({
         url:
-          'https://services.arcgis.com/nGt4QxSblgDfeJn9/arcgis/rest/services/Vacant_Lots_SpatialJoin/FeatureServer/0',
+          'https://services.arcgis.com/nGt4QxSblgDfeJn9/arcgis/rest/services/Final_vacant_lots2/FeatureServer/0',
         outFields: ['*'],
         popupTemplate: this.createPopupTemplate()
       });
@@ -230,18 +334,54 @@ createPopupTemplate() {
           map
         });
 
-        this.mapView.on('pointer-down', (event) => {
-          console.log('the pointer clicked');
-          const query = layer.createQuery();
-          query.geometry = this.mapView.toMap(event);
-          console.log(query.geometry);
-        });
+        this.graphicsLayer = new GraphicsLayer();
+        map.add(this.graphicsLayer);
+
+       const point = { //Create a point
+        type: 'point',
+        longitude: -118.24,
+        latitude: 34.05
+      };
+      const simpleMarkerSymbol = {
+        type: 'simple-marker',
+        color: [124, 159, 113],  // Orange
+        outline: {
+          color: [255, 255, 255], // White
+          width: 1,
+        }
+      };
+
+      this.pointGraphic = new Graphic({
+        geometry: point,
+        symbol: simpleMarkerSymbol
+      });
+
+      this.graphicsLayer.add(this.pointGraphic);
+
+        // this.mapView.on('pointer-down', (event) => {
+        //   console.log('the pointer clicked');
+        //   const query = layer.createQuery();
+        //   query.geometry = this.mapView.toMap(event);
+        //   console.log(query.geometry);
+        // });
+
+      const layerView = await this.mapView.whenLayerView(layer);
 
       const search = new Search({  //Add Search widget
         view: this.mapView
       });
 
+      search.on('select-result', (event) => {
+        setTimeout(() => {this.updateMap(layer, layerView);}, 100);
+      });
+
       this.mapView.ui.add(search, 'top-right');
+
+      this.myForm.form.valueChanges.subscribe(c => {
+        this.formChanged = true;
+        this.isQueryData = true;
+        setTimeout(() => {this.updateMap(layer, layerView);}, 100);
+      });
     } catch (err) {
       console.log(err);
     }

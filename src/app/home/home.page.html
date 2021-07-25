@@ -20,12 +20,12 @@
               <p class="smallText"> Click on labels to reveal a description </p>
             </ion-card-header>
             <ion-item (click)="showSearchRadius()" class="pointer">
-              <ion-label position="floating"> <p>Search Radius (in miles)</p></ion-label>
+              <ion-label position="floating"> <p>Search Radius (In miles)</p></ion-label>
               <ion-range [(ngModel)]="searchRadius" name="searchRadius" min="0" max="20" pin color="primary"></ion-range>
             </ion-item>
             <ion-item class="pointer" (click)="showParcelDimensions()">
-              <ion-label position="floating"> <p>Parcel Dimensions</p></ion-label>
-              <ion-range [(ngModel)]="parcelDimensions" name="parcelDimensions" dual-knobs  min="0" max="50" pin color="primary"></ion-range>
+              <ion-label position="floating"> <p>Parcel Dimensions (In square feet)</p></ion-label>
+              <ion-range [(ngModel)]="parcelDimensions" name="parcelDimensions" dual-knobs  min="1000" max="1000000" pin color="primary"></ion-range>
             </ion-item>
 
             <ion-item>
@@ -37,7 +37,7 @@
               <ion-toggle [(ngModel)]="considerPublicTransport" name="publicTransport"></ion-toggle>
             </ion-item>
             <ion-item>
-              <ion-label (click)="showCommunityCenters()"> <p class="pointer"> Consider Community Centers </p></ion-label>
+              <ion-label (click)="showCommunityCenters()"> <p class="pointer"> Consider Public Schools </p></ion-label>
               <ion-toggle [(ngModel)]="considerDistanceCommunityCenters" name="communityCenters"></ion-toggle>
             </ion-item>
             <ion-item>
@@ -49,156 +49,207 @@
               <ion-toggle [(ngModel)]="considerSunlight" name="sunlight"></ion-toggle>
             </ion-item>
             <ion-item>
+              <ion-label (click)="showLowIncome()"> <p class="pointer"> Consider Low Income </p> </ion-label>
+              <ion-toggle [(ngModel)]="considerLowIncome" name="lowIncome"></ion-toggle>
+            </ion-item>
+            <ion-item>
               <ion-list>
-                <ion-radio-group value="biff">
-                  <ion-list-header>
-                    <ion-label>Name</ion-label>
+                <ion-radio-group [(ngModel)]="considerSnap" name="snap">
+                  <ion-list-header class="ion-no-padding">
+                    <ion-label><p class="pointer" (click)="showSnap()">Consider SNAP (Supplemental Nutrition Assistance Program)</p></ion-label>
                   </ion-list-header>
 
                   <ion-item>
-                    <ion-label>Biff</ion-label>
-                    <ion-radio slot="start" value="biff"></ion-radio>
+                    <ion-label><p>None</p></ion-label>
+                    <ion-radio slot="start" value="none"></ion-radio>
                   </ion-item>
 
                   <ion-item>
-                    <ion-label>Griff</ion-label>
-                    <ion-radio slot="start" value="griff"></ion-radio>
+                    <ion-label><p>Low</p></ion-label>
+                    <ion-radio slot="start" value="low"></ion-radio>
                   </ion-item>
 
                   <ion-item>
-                    <ion-label>Buford</ion-label>
-                    <ion-radio slot="start" value="buford"></ion-radio>
+                    <ion-label><p>Medium</p></ion-label>
+                    <ion-radio slot="start" value="medium"></ion-radio>
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-label><p>High</p></ion-label>
+                    <ion-radio slot="start" value="high"></ion-radio>
                   </ion-item>
                 </ion-radio-group>
               </ion-list>
             </ion-item>
           </form>
 
+          <ion-grid>
+            <ion-row class="ion-margin-top">
+              <ion-col>
+                <div *ngIf="openFoodDesert" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/desert.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Food Deserts
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> A food desert is an urban area where it is difficult to buy affordable or good-quality fresh food. A community garden is a great way at addressing this problem.
+                      If this is something that is important to you, selecting this filter will ensure only parcels within food deserts will be considered.</p>
+                  </ion-item>
+
+                </div>
+
+                <div *ngIf="openPublicTransport" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/train.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Public Transport
+                    </h1>
+                  </ion-item>
+
+                  <ion-item lines="none">
+                    <p> An important logistical aspect of creating a community garden is ensuring every community member has reasonable transportation access to the selected site.
+                      Enabling this filter will remove any parcels not within a reasonable distance to public transportation routes.</p>
+                  </ion-item>
+
+                </div>
+
+                <div *ngIf="openCommunityCenters" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/school.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Public Schools
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> You may find more community member engagement if your selected sight is near a public school. Enabling this filter will make sure only parcels within reasonable proximity
+                      to public schools are considered.
+                    </p>
+                  </ion-item>
+
+                </div>
+
+                <div *ngIf="openHeavyMetals" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/warning.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Heavy Metals
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> A very important component of choosing the right soil to grow on is making sure the soil is not contaminated with heavy metals. Heavy metals may affect the quality of plant growth,
+                      but more importantly they may cause serious health problems over a long-period of time. Common heavy metals to be wary of include lead (Pb), chromium (Cr), arsenic (As), zinc (Zn),
+                      cadmium (Cd), copper (Cu), mercury (Hg), and nickel (Ni). Enabling this filter will attempt to remove parcels from consideration which may have been exposed to heavy metals. However,
+                      using heavy metal testing kits are still strongly recommended for each selected site.
+                    </p>
+                  </ion-item>
+                </div>
+
+                <div *ngIf="openSunlight" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/lights.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Sunlight
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> Your plants won’t grow too well if the sunlight is being blocked by surrounding buildings! This filter will attempt to consider only parcels with reasonable sunlight access.
+                    </p>
+                  </ion-item>
+                  <ion-item lines="none">
+                  <h2> Note: This is not currently implemented, but we'll work on it in the future!</h2>
+                  </ion-item>
+
+                </div>
+
+                <div *ngIf="openParcelDimensions" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/dimension.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Parcel Dimensions
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> What are the minimum and maximum sizes of parcels you are willing to consider? </p>
+                  </ion-item>
+                </div>
+
+                <div *ngIf="openSearchRadius" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/radius-of-circle.svg">
+                    </ion-thumbnail>
+                    <h1>
+                      Search Radius
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> How far away are you willing to consider for your parcels from your current location? Make sure your current location is set using the search bar in the top-right corner of the embedded map.
+                    </p>
+                  </ion-item>
+                </div>
+
+                <div *ngIf="openSnap" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/stamps.png">
+                    </ion-thumbnail>
+                    <h1>
+                      SNAP
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> Supplemental Nutrition Assistance Program (SNAP) is a federal program that provides food-purchasing assistance for low- and no-income people.
+                      You may want to use this filter if you wish to target areas with SNAP recipients.
+                    </p>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <h2> Note: This is not currently implemented, but we'll work on it in the future!</h2>
+                  </ion-item>
+                </div>
+
+                <div *ngIf="openLowIncome" class="description">
+                  <ion-item>
+                    <ion-thumbnail slot="end">
+                      <img src="../../assets/poor.png">
+                    </ion-thumbnail>
+                    <h1>
+                      Low Income
+                    </h1>
+                  </ion-item>
+                  <ion-item lines="none">
+                    <p> This filter only considers parcels in a low-income tract (50 percent of households with incomes below 60 percent of the Area Median Gross Income)
+                    </p>
+                  </ion-item>
+                </div>
+
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
 
         </ion-col>
         <ion-col size="8">
           <app-esri-map [considerSunlight]="considerSunlight" [considerDistanceCommunityCenters]="considerDistanceCommunityCenters" [considerFoodDeserts]="considerFoodDeserts"
-          [considerHeavyMetals]="considerHeavyMetals" [searchRadius]="searchRadius" [considerPublicTransport]="considerPublicTransport"></app-esri-map>
+          [considerHeavyMetals]="considerHeavyMetals" [searchRadius]="searchRadius" [considerPublicTransport]="considerPublicTransport" [parcelDimensions]="parcelDimensions"
+          [myForm]="myForm" [considerLowIncome]="considerLowIncome"></app-esri-map>
         </ion-col>
       </ion-row>
 
-      <ion-row class="ion-margin-top">
-        <ion-col size="4">
-          <div *ngIf="openFoodDesert" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/desert.svg">
-              </ion-thumbnail>
-              <h1>
-                Food Deserts
-              </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> A food desert is an urban area where it is difficult to buy affordable or good-quality fresh food. A community garden is a great way at addressing this problem.
-                If this is something that is important to you, selecting this filter will ensure only parcels within food deserts will be considered.</p>
-            </ion-item>
 
-          </div>
-
-          <div *ngIf="openPublicTransport" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/train.svg">
-              </ion-thumbnail>
-              <h1>
-                Public Transport
-              </h1>
-            </ion-item>
-
-            <ion-item lines="none">
-              <p> An important logistical aspect of creating a community garden is ensuring every community member has reasonable transportation access to the selected site.
-                Enabling this filter will remove any parcels not within a reasonable distance to public transportation routes.</p>
-            </ion-item>
-
-          </div>
-
-          <div *ngIf="openCommunityCenters" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/school.svg">
-              </ion-thumbnail>
-              <h1>
-                Community Centers
-              </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> You may find more community member engagement if your selected sight is near community centers. Some examples of community centers are churches, schools, charity organizations,
-                or public parks. Enabling this filter will make sure only parcels within reasonable proximity to community centers are considered.
-              </p>
-            </ion-item>
-
-          </div>
-
-          <div *ngIf="openHeavyMetals" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/warning.svg">
-              </ion-thumbnail>
-            <h1>
-              Heavy Metals
-            </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> A very important component of choosing the right soil to grow on is making sure the soil is not contaminated with heavy metals. Heavy metals may affect the quality of plant growth,
-                but more importantly they may cause serious health problems over a long-period of time. Common heavy metals to be wary of include lead (Pb), chromium (Cr), arsenic (As), zinc (Zn),
-                cadmium (Cd), copper (Cu), mercury (Hg), and nickel (Ni). Enabling this filter will attempt to remove parcels from consideration which may have been exposed to heavy metals. However,
-                using heavy metal testing kits are still strongly recommended for each selected site.
-              </p>
-            </ion-item>
-          </div>
-
-          <div *ngIf="openSunlight" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/lights.svg">
-              </ion-thumbnail>
-            <h1>
-              Sunlight
-            </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> Your plants won’t grow too well if the sunlight is being blocked by surrounding buildings! This filter will attempt to consider only parcels with reasonable sunlight access.
-              </p>
-            </ion-item>
-
-          </div>
-
-          <div *ngIf="openParcelDimensions" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/dimension.svg">
-              </ion-thumbnail>
-              <h1>
-                Parcel Dimensions
-              </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> What are the minimum and maximum sizes of parcels you are willing to consider? </p>
-            </ion-item>
-          </div>
-
-          <div *ngIf="openSearchRadius" class="description">
-            <ion-item>
-              <ion-thumbnail slot="end">
-                <img src="../../assets/radius-of-circle.svg">
-              </ion-thumbnail>
-              <h1>
-                Search Radius
-              </h1>
-            </ion-item>
-            <ion-item lines="none">
-              <p> How far away are you willing to consider for your parcels from your current location? Make sure your current location is set using the search bar in the top-right corner of the embedded map.
-              </p>
-            </ion-item>
-          </div>
-
-        </ion-col>
-      </ion-row>
     </ion-grid>
 
   </div>

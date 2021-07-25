@@ -2,3 +2,52 @@
   <div #mapViewNode></div>
 </ion-card>
 
+<ion-grid *ngIf="isQueryData">
+  <ion-row>
+    <ion-col>
+      <ion-grid>
+        <ion-row class="heading">
+          <ion-col size="2">
+            <h3> City</h3>
+          </ion-col>
+          <ion-col size="2">
+            <h3> Population </h3>
+          </ion-col>
+          <ion-col size="2">
+            <h3> Poverty Rate</h3>
+          </ion-col>
+          <ion-col size="2">
+            <h3> Soil type</h3>
+          </ion-col>
+          <ion-col size="2">
+            <h3> Median Family Income</h3>
+          </ion-col>
+          <ion-col size="2">
+            <h3> Topsoil Ph</h3>
+          </ion-col>
+        </ion-row>
+          <ion-row class="query_row" *ngFor="let item of this.queryData.slice(0, 10);" (click)="panMap([item.geometry.centroid.x, item.geometry.centroid.y], item.attributes.ShapeSTAre)">
+            <ion-col size="2">
+              <p> {{item.attributes.TaxRateCit}}</p>
+            </ion-col>
+            <ion-col size="2">
+              <p> {{item.attributes.Pop2010}} </p>
+            </ion-col>
+            <ion-col size="2">
+              <p> {{item.attributes.PovertyRat}}</p>
+            </ion-col>
+            <ion-col size="2">
+              <p> {{item.attributes.SoilType}}</p>
+            </ion-col>
+            <ion-col size="2">
+              <p> {{item.attributes.MedianFami}}</p>
+            </ion-col>
+            <ion-col size="2">
+              <p> {{item.attributes.tops_ph}}</p>
+            </ion-col>
+          </ion-row>
+      </ion-grid>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+

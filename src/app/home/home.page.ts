@@ -16,6 +16,8 @@ export class HomePage implements OnInit{
   considerHeavyMetals: boolean;
   considerSunlight: boolean;
   parcelDimensions: any;
+  considerSnap: string;
+  considerLowIncome: boolean;
 
   locator: __esri.locator;
 
@@ -26,13 +28,17 @@ export class HomePage implements OnInit{
   openSunlight: boolean;
   openParcelDimensions: boolean;
   openSearchRadius: boolean;
+  openSnap: boolean;
+  openLowIncome: boolean;
 
-  formChanged = false;
+
   @ViewChild('myForm', { static: true }) myForm: NgForm;
 
   constructor() {}
 
   closeAllDescriptions() {
+    this.openLowIncome = false;
+    this.openSnap = false;
     this.openParcelDimensions = false;
     this.openSearchRadius = false;
     this.openFoodDesert = false;
@@ -40,6 +46,32 @@ export class HomePage implements OnInit{
     this.openCommunityCenters = false;
     this.openPublicTransport = false;
     this.openHeavyMetals = false;
+  }
+
+  showLowIncome() {
+    let isOpen = false;
+    if (this.openLowIncome) {
+      isOpen = true;
+    }
+    this.closeAllDescriptions();
+    this.openLowIncome = !this.openLowIncome;
+
+    if (isOpen) {
+      this.openLowIncome = false;
+    }
+  }
+
+  showSnap() {
+    let isOpen = false;
+    if (this.openSnap) {
+      isOpen = true;
+    }
+    this.closeAllDescriptions();
+    this.openSnap = !this.openSnap;
+
+    if (isOpen) {
+      this.openSnap = false;
+    }
   }
 
   showParcelDimensions() {
@@ -159,22 +191,17 @@ export class HomePage implements OnInit{
         url: 'http://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer'
       });
 
+      this.considerSnap = 'none';
       this.searchRadius = 5;
-      this.considerFoodDeserts = true;
-      this.considerPublicTransport = true;
-      this.considerDistanceCommunityCenters = true;
+      this.considerFoodDeserts = false;
+      this.considerPublicTransport = false;
+      this.considerDistanceCommunityCenters = false;
       this.considerHeavyMetals = false;
       this.considerSunlight = false;
-      this.parcelDimensions = {lower: 0, upper: 10};
+      this.considerLowIncome = false;
+      this.parcelDimensions = {lower: 20000, upper: 100000};
 
       this.openFoodDesert = false;
-
-
-      this.myForm.form.valueChanges.subscribe(c => {
-        this.formChanged = true;
-        console.log('this form changed!');
-        this.testPlaces();
-      });
     } catch (err) {
       console.log(err);
     }
